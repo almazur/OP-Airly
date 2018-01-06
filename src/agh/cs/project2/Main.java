@@ -32,9 +32,13 @@ public class Main {
 
             System.out.println(response);
 
-            ObjectMapper mapper = new ObjectMapper();
-            SensorMeasurements sensor = mapper.readValue(response,SensorMeasurements.class);
+            //ObjectMapper mapper = new ObjectMapper();
+            //SensorMeasurements sensor = mapper.readValue(response,SensorMeasurements.class);
             //ParticularSensor sensor = mapper.readValue(response,ParticularSensor.class);
+
+            //Lung lung = new Lung();
+            //lung.setColor("\u001B[33m");
+            //System.out.println(lung.toString());
 
         } catch (ProtocolException e) {
             e.printStackTrace();
