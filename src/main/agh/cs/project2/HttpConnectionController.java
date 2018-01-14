@@ -6,21 +6,22 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class HTTPRequestController {
+public class HttpConnectionController {
     private HttpURLConnection connection;
+    private Integer responseCode;
 
-    HTTPRequestController(){
+    HttpConnectionController(){
         this.connection=null;
     }
 
-    public void sendGetRequest(URL url) throws IOException {
+    public void sendGetRequest(URL url,String apiKey) throws IOException {
         this.connection = (HttpURLConnection) url.openConnection();
         this.connection.setRequestMethod("GET");
 
         this.connection.setRequestProperty("Accept", "application/json");
-        this.connection.setRequestProperty("apikey", "343bb1201dc248c59b92e7fe286f0bdc");
-        this.connection.setUseCaches(false); //?
+        this.connection.setRequestProperty("apikey", apiKey);
         this.connection.setDoOutput(true);
+        this.responseCode = this.connection.getResponseCode();
     }
 
     public String getResponse() throws IOException {
@@ -28,13 +29,19 @@ public class HTTPRequestController {
         BufferedReader br;
         String output;
 
-        if (200 <= this.connection.getResponseCode() && this.connection.getResponseCode() <= 299)
-            br = new BufferedReader(new InputStreamReader(this.connection.getInputStream()));
-        else br = new BufferedReader(new InputStreamReader(this.connection.getErrorStream()));
-
+        if (200 == this.responseCode) br = new BufferedReader(new InputStreamReader(this.connection.getInputStream()));
+        else if (this.connection.getErrorStream() != null) {
+            br = new BufferedReader(new InputStreamReader(this.connection.getErrorStream()));
+        } else return "";
         while ((output = br.readLine()) != null) sb.append(output);
-
         return sb.toString();
+    }
+
+    public Integer getResponseCode(){
+        return this.responseCode;
+    }
+    public String getContentType() throws IOException {
+        return this.connection.getContentType();
     }
 
     public void disconnect(){

@@ -1,8 +1,9 @@
 package agh.cs.project2;
 
-public class NotCurrentMeasurements {
+// forecast and history measurements
+public class SpecificDateMeasurements {
     private String fromDateTime;
-    private CurrentMeasurements currentMeasurements;
+    private Measurements measurements;
     private String tillDateTime;
 
 
@@ -14,11 +15,11 @@ public class NotCurrentMeasurements {
         this.fromDateTime = fromDateTime;
     }
 
-    public CurrentMeasurements getCurrentMeasurements() {
-        return currentMeasurements;
+    public Measurements getMeasurements() {
+        return measurements;
     }
-    public void setCurrentMeasurements(CurrentMeasurements currentMeasurements) {
-        this.currentMeasurements = currentMeasurements;
+    public void setMeasurements(Measurements measurements) {
+        this.measurements = measurements;
     }
 
     public String getTillDateTime() {

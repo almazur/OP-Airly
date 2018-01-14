@@ -1,16 +1,16 @@
 package agh.cs.project2;
 
-public class SensorMeasurements {
+public class NearestSensorInfo extends SensorInfo {
     private Double airQualityIndex;
     private Double pm25;
     private Double pm10;
     private Double distance;
-    private Integer id;
-    private String name;
-    private String vendor;
-    private Location location;
-    private Integer pollutionLevel;
-    private Address address;
+    //private Integer id;
+    //private String name;
+    //private String vendor;
+    //private Location location;
+    //private Integer pollutionLevel;
+    //private Address address;
     private String measurementTime;
 
     // getters and setters for all attributes
@@ -42,7 +42,7 @@ public class SensorMeasurements {
         this.distance = distance;
     }
 
-    public Integer getId() {
+    /*public Integer getId() {
         return id;
     }
     public void setId(Integer id) {
@@ -82,7 +82,7 @@ public class SensorMeasurements {
     }
     public void setAddress(Address address) {
         this.address = address;
-    }
+    }*/
 
     public String getMeasurementTime() {
         return measurementTime;
