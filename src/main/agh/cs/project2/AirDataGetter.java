@@ -44,7 +44,7 @@ public class AirDataGetter {
         return data;
     }
 
-    private Object getDataFromUrl(URL url,Class objectClass) throws IOException, HttpRequestException {
+    private Object getDataFromUrl(URL url,Class<?> objectClass) throws IOException, HttpRequestException {
         httpConnectionController.sendGetRequest(url,apiKey);
         String response = httpConnectionController.getResponse();
         Integer responseCode = httpConnectionController.getResponseCode();
@@ -66,9 +66,6 @@ public class AirDataGetter {
 
     }
 
-    /*private void setSensorId(){
-        if(this.cmd.hasOption("i")) sensorId = cmd.getOptionValue("i");
-    }*/
     private void handleException(String response,Integer responseCode) throws IOException, HttpRequestException {
         ObjectMapper mapper = new ObjectMapper();
         if(responseCode==400 || responseCode==500) {

@@ -16,6 +16,8 @@ public class Main {
         try {
             AirDataGetter airDataGetter = new AirDataGetter(args);
             HashMap<String,Object> data = airDataGetter.extractAirData();
+            AsciiDisplay asciiDisplay = new AsciiDisplay(data,false);
+            System.out.println(asciiDisplay.getCurrentMeasurements());
             /*HttpConnectionController httpConnectionController = new HttpConnectionController();
             URL url;
             String response;
@@ -63,11 +65,8 @@ public class Main {
             } else {
                 //NearestSensorInfo sensor = mapper.readValue(response,NearestSensorInfo.class);
                 DetailedMeasurements sensor = mapper.readValue(response,DetailedMeasurements.class);
-
-                //Lung lung = new Lung();
-                //lung.setColor("\u001B[33m");
-                //System.out.println(lung.toString());
-            }*/
+             */
+            //}
 
         } catch (ProtocolException e) {
             e.printStackTrace();
