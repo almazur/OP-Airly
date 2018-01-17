@@ -7,6 +7,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.ParseException;
 
+import javax.xml.ws.http.HTTPException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,7 +19,6 @@ public class AirDataGetter {
     private URL basicDataUrl;
     private URL detailedDataUrl;
     private String apiKey;
-    private String sensorId;
 
     AirDataGetter(String[] args) throws ParseException {
         cmd = new DefaultParser().parse(new OptionsCreator().getOptions(),args);
@@ -32,11 +32,19 @@ public class AirDataGetter {
         setUrls();
         SensorInfo sensorInfo;
 
-        if(cmd.hasOption("i")) sensorInfo = (SensorInfo) getDataFromUrl(basicDataUrl, SensorInfo.class);//getSensorsInfo();
-        else sensorInfo = (SensorInfo) getDataFromUrl(basicDataUrl,NearestSensorInfo.class);
+        if(cmd.hasOption("i")){
+            System.out.println("Szukanie po id...");
+            sensorInfo = (SensorInfo) getDataFromUrl(basicDataUrl, SensorInfo.class);//getSensorsInfo();
+        }
+        else{
+            System.out.println("Szukanie po lokalizacji...");
+            sensorInfo = (SensorInfo) getDataFromUrl(basicDataUrl,NearestSensorInfo.class);
+        }
         DetailedMeasurements measurements = (DetailedMeasurements) getDataFromUrl(detailedDataUrl,DetailedMeasurements.class);
 
-        data.put("id",cmd.getOptionValue("i"));
+        if(sensorInfo.getId() == null) throw new IllegalArgumentException("Data not available");
+
+        data.put("id",sensorInfo.getId());
         data.put("address",sensorInfo.getAddress());
         data.put("location",sensorInfo.getLocation());
         data.put("currentMeasurements",measurements.getCurrentMeasurements());
@@ -47,9 +55,10 @@ public class AirDataGetter {
     private Object getDataFromUrl(URL url,Class<?> objectClass) throws IOException, HttpRequestException {
         httpConnectionController.sendGetRequest(url,apiKey);
         String response = httpConnectionController.getResponse();
+        System.out.println("Response: "+response);
         Integer responseCode = httpConnectionController.getResponseCode();
         httpConnectionController.disconnect();
-        if(responseCode!=200) handleException(response,responseCode);
+        if(!responseCode.equals(200)) handleException(response,responseCode);
 
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(response,objectClass);
@@ -67,6 +76,7 @@ public class AirDataGetter {
     }
 
     private void handleException(String response,Integer responseCode) throws IOException, HttpRequestException {
+
         ObjectMapper mapper = new ObjectMapper();
         if(responseCode==400 || responseCode==500) {
             ErrorResponse errorResponse = mapper.readValue(response, ErrorResponse.class);
@@ -85,28 +95,4 @@ public class AirDataGetter {
             throw new HttpRequestException("Status " + responseCode);
         }
     }
-
-    /*private SensorInfo getSensorsInfo() throws IOException, HttpRequestException {
-        httpConnectionController.sendGetRequest(basicDataUrl,apiKey);
-        response= httpConnectionController.getResponse();
-        Integer responseCode = httpConnectionController.getResponseCode();
-        httpConnectionController.disconnect();
-        if(responseCode!=200) handleException(response,responseCode);
-
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(response,SensorInfo.class);
-    }
-    private NearestSensorInfo getNearestSensorInfo(){
-        return null;
-    }
-    private DetailedMeasurements getDetailedMeasurements() throws IOException, HttpRequestException {
-        httpConnectionController.sendGetRequest(detailedDataUrl,apiKey);
-        response= httpConnectionController.getResponse();
-        Integer responseCode = httpConnectionController.getResponseCode();
-        httpConnectionController.disconnect();
-        if(responseCode!=200) handleException(response,responseCode);
-
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(response,DetailedMeasurements.class);
-    }*/
 }

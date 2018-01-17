@@ -69,15 +69,17 @@ public class Main {
             //}
 
         } catch (ProtocolException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            //e.printStackTrace();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            //e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (HttpRequestException e) {
             System.out.println(e.getMessage());
         } catch (ParseException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 }

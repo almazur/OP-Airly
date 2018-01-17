@@ -15,6 +15,7 @@ public class HttpConnectionController {
     }
 
     public void sendGetRequest(URL url,String apiKey) throws IOException {
+
         this.connection = (HttpURLConnection) url.openConnection();
         this.connection.setRequestMethod("GET");
 
