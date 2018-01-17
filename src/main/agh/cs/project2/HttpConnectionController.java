@@ -35,6 +35,7 @@ public class HttpConnectionController {
             br = new BufferedReader(new InputStreamReader(this.connection.getErrorStream()));
         } else return "";
         while ((output = br.readLine()) != null) sb.append(output);
+        System.out.println(sb.toString());
         return sb.toString();
     }
 

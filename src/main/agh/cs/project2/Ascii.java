@@ -15,10 +15,10 @@ public abstract class Ascii {
 
     public List<String> getLines(){
         List<String> lines = new ArrayList<>(Arrays.asList(this.asciiArt.split(System.getProperty("line.separator"))));
-        return lines.stream().map(str->this.color.getColorCode()+str+Color.BLACK.getColorCode()).collect(Collectors.toList());
+        return lines.stream().map(str->this.color.getColorCode()+str+Color.RESET.getColorCode()).collect(Collectors.toList());
     }
 
     public String toString(){
-        return color.getColorCode()+asciiArt+Color.BLACK.getColorCode();
+        return color.getColorCode()+asciiArt+Color.RESET.getColorCode();
     }
 }

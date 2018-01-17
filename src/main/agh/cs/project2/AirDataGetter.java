@@ -6,8 +6,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.ParseException;
-
-import javax.xml.ws.http.HTTPException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -49,13 +47,14 @@ public class AirDataGetter {
         data.put("location",sensorInfo.getLocation());
         data.put("currentMeasurements",measurements.getCurrentMeasurements());
         data.put("history",measurements.getHistory());
+        data.put("hOption",cmd.hasOption("h"));
         return data;
     }
 
     private Object getDataFromUrl(URL url,Class<?> objectClass) throws IOException, HttpRequestException {
         httpConnectionController.sendGetRequest(url,apiKey);
         String response = httpConnectionController.getResponse();
-        System.out.println("Response: "+response);
+        //System.out.println("Response: "+response);
         Integer responseCode = httpConnectionController.getResponseCode();
         httpConnectionController.disconnect();
         if(!responseCode.equals(200)) handleException(response,responseCode);

@@ -8,8 +8,9 @@ public enum Color {
     DARKYELLOW("\u001B[33m"),
     RED("\u001B[91m"),
     DARKRED("\u001B[31m"),
-    BLACK("\u001B[30m");
-    //RESET("\u001B[0m");
+    BLACK("\u001B[30m"),
+    RESET("\u001B[0m");
+    //WHITE ("\u001B[37m");
 
     private String colorCode;
     Color(String colorCode){

@@ -1,14 +1,9 @@
 package agh.cs.project2;
 
-
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
-import java.net.URL;
 import java.util.HashMap;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.cli.ParseException;
 
 public class Main {
@@ -16,8 +11,10 @@ public class Main {
         try {
             AirDataGetter airDataGetter = new AirDataGetter(args);
             HashMap<String,Object> data = airDataGetter.extractAirData();
-            AsciiDisplay asciiDisplay = new AsciiDisplay(data,false);
-            System.out.println(asciiDisplay.getCurrentMeasurements());
+            AsciiDisplay asciiDisplay = new AsciiDisplay(data);
+            System.out.println(asciiDisplay.toString());
+            //System.out.println(asciiDisplay.getCurrentMeasurements());
+            //System.out.println(asciiDisplay.getHistoryMeasurements());
             /*HttpConnectionController httpConnectionController = new HttpConnectionController();
             URL url;
             String response;

@@ -3,68 +3,74 @@ package agh.cs.project2;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 public class AsciiDisplay {
     private HashMap<String,Double> currentMeasurements;
-    private Measurements measurements;
+    //private Measurements measurements;
     private SpecificDateMeasurements[] history;
     private Address address;
     private Integer pollutionLevel;
     private Boolean displayHistory;
     private Integer id;
     private String currentMeasurementsFrame;
+    private String historyMeasurementsFrame;
 
-    public AsciiDisplay(HashMap<String,Object> args,Boolean displayHistory){
-        this.displayHistory = displayHistory;
+    public AsciiDisplay(HashMap<String,Object> args){
+        this.displayHistory = (Boolean) args.get("hOption");
         this.id = (Integer) args.get("id");
-        this.measurements=(Measurements)args.get("currentMeasurements");
+        //this.measurements=(Measurements)args.get("currentMeasurements");
         this.currentMeasurements = saveSpecificData((Measurements)args.get("currentMeasurements"));
         this.address = (Address) args.get("address");
         this.pollutionLevel = ((Measurements) args.get("currentMeasurements")).getPollutionLevel();
         this.history = (SpecificDateMeasurements[]) args.get("history");
-        String lineSeparator = System.getProperty("line.separator");
-        this.currentMeasurementsFrame = ".--------------------------------------------------------------------." + lineSeparator +
-                "|  @                                                                 |" + lineSeparator +
-                "|  @                                                                 |" + lineSeparator +
-                "|--------------------------------------------------------------------|" + lineSeparator +
-                "|                                            #|" + lineSeparator +
-                "|  CAQI: @                                   #|" + lineSeparator +
-                "|  pm2.5: @                                  #|" + lineSeparator +
-                "|  pm10: @                                   #|" + lineSeparator +
-                "|                                            #|" + lineSeparator +
-                "|  temp.: @                                  #|" + lineSeparator +
-                "|  press.: @                                 #|" + lineSeparator +
-                "|  hum.: @                                   #|" + lineSeparator +
-                "|                                            #|" + lineSeparator +
-                "|                                            #|" + lineSeparator +
-                "|                                            #|" + lineSeparator +
-                "|                                            #|" + lineSeparator +
-                "|                                            #|" + lineSeparator +
-                "'--------------------------------------------------------------------'";
+        this.currentMeasurementsFrame = DisplayFrame.currentMeasurementsFrame.toString();
+        this.historyMeasurementsFrame = DisplayFrame.historyMeasurementsFrame.toString();
     }
 
-    public String getCurrentMeasurements(){
+    public String toString(){
+        return this.displayHistory ? (getCurrentMeasurements() + getHistoryMeasurements()) : getCurrentMeasurements();
+    }
+
+    private String getCurrentMeasurements(){
         List<String> asciiArtLines = getAsciiArtLines();
+        //System.out.println(currentMeasurementsFrame);
         String[] frameLines = currentMeasurementsFrame.split(System.getProperty("line.separator"));
         StringBuilder str = new StringBuilder();
 
         str.append(frameLines[0]).append(System.getProperty("line.separator"))
                 .append(replaceAt(frameLines[1],address.getRoute()+" "+address.getStreetNumber())).append(System.getProperty("line.separator"))
-                .append(replaceAt(frameLines[2],address.getLocality()+"(id: "+id+")")).append(System.getProperty("line.separator"))
+                .append(replaceAt(frameLines[2],address.getLocality()+" (id: "+id+")")).append(System.getProperty("line.separator"))
                 .append(frameLines[3]).append(System.getProperty("line.separator"));
-        int i=4;
 
+        int i=4;
         for(String line : asciiArtLines){
             String[] frameParts = frameLines[i].split("#");
-            //System.out.println(replaceAt(frameParts[0],getMeasurementValue(frameParts[0])));
             str.append(replaceAt(frameParts[0],getMeasurementValue(frameParts[0]))).
                     append(line).append(frameParts[1]).append(System.getProperty("line.separator"));
             i++;
         }
-        str.append(frameLines[frameLines.length-1]);
+        str.append(frameLines[frameLines.length-1]).append(System.getProperty("line.separator"));
         return str.toString();
+    }
+
+    private String getHistoryMeasurements(){
+        StringBuilder str = new StringBuilder();
+        for(SpecificDateMeasurements measurement : this.history){
+            str.append(getSingleHistoryMeasurement(measurement.getFromDateTime(),measurement.getTillDateTime(),measurement.getMeasurements()));
+        }
+        return str.toString();
+    }
+
+    private String getSingleHistoryMeasurement(String fromDate, String toDate, Measurements measurements){
+        String[] frameLines = historyMeasurementsFrame.split(System.getProperty("line.separator"));
+        String lineSeparator = System.getProperty("line.separator");
+        return //frameLines[0] + lineSeparator +
+                replaceAt(frameLines[0], "FROM: " + fromDate + "   TO: " + toDate) + lineSeparator +
+                frameLines[1] + lineSeparator +
+                replaceAt(frameLines[2], format(measurements.getPm25())) + lineSeparator +
+                replaceAt(frameLines[3], format(measurements.getPm10())) + lineSeparator +
+                frameLines[4] + lineSeparator;
     }
 
     private List<String> getAsciiArtLines(){
@@ -80,16 +86,19 @@ public class AsciiDisplay {
     }
 
     private String getMeasurementValue(String line){
-                DecimalFormat df = new DecimalFormat("#.##");
-        df.setRoundingMode(RoundingMode.CEILING);
-
         for(String param:this.currentMeasurements.keySet()){
             if(line.matches(".+"+param+".+")) {
-                if(currentMeasurements.get(param)!=null) return df.format(currentMeasurements.get(param));
+                if(currentMeasurements.get(param)!=null) return format(currentMeasurements.get(param));
                 return "-";
             }
         }
         return " ";
+    }
+
+    private String format(Double value){
+        DecimalFormat df = new DecimalFormat("#.##");
+        df.setRoundingMode(RoundingMode.CEILING);
+        return df.format(value);
     }
 
     private HashMap<String,Double> saveSpecificData(Measurements measurements){
@@ -105,11 +114,11 @@ public class AsciiDisplay {
 
     private Color pollutionLevelToColor(Integer pollutionLevel){
         switch(pollutionLevel){
-            case 0: return Color.DARKGREEN;
-            case 1: return Color.GREEN;
-            case 2: return Color.YELLOW;
-            case 3: return Color.DARKYELLOW;
-            case 4: return Color.RED;
+            case 0: case 1: return Color.DARKGREEN;
+            case 2: return Color.GREEN;
+            case 3: return Color.YELLOW;
+            case 4: return Color.DARKYELLOW;
+            case 5: return Color.RED;
             default: return Color.DARKRED;
         }
     }

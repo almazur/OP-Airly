@@ -37,7 +37,7 @@ public class OptionsCreator {
                 .build();
 
         Option apiKey = Option.builder("k")
-                .longOpt("api-key")
+                .longOpt("apiKey")
                 .hasArg()
                 .desc("")
                 .build();
