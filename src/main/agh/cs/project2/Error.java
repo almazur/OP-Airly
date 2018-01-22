@@ -1,5 +1,6 @@
 package agh.cs.project2;
 
+// class for error returned after http request
 public class Error {
     private Integer code;
     private String message;

@@ -6,11 +6,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+// controls everything related to http request
 public class HttpConnectionController {
     private HttpURLConnection connection;
     private Integer responseCode;
 
-    HttpConnectionController(){
+    public HttpConnectionController(){
         this.connection=null;
     }
 
@@ -21,7 +22,7 @@ public class HttpConnectionController {
 
         this.connection.setRequestProperty("Accept", "application/json");
         this.connection.setRequestProperty("apikey", apiKey);
-        this.connection.setDoOutput(true);
+        this.connection.setUseCaches(false);
         this.responseCode = this.connection.getResponseCode();
     }
 
@@ -35,14 +36,13 @@ public class HttpConnectionController {
             br = new BufferedReader(new InputStreamReader(this.connection.getErrorStream()));
         } else return "";
         while ((output = br.readLine()) != null) sb.append(output);
-        System.out.println(sb.toString());
         return sb.toString();
     }
 
     public Integer getResponseCode(){
         return this.responseCode;
     }
-    public String getContentType() throws IOException {
+    public String getContentType(){
         return this.connection.getContentType();
     }
 

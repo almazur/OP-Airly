@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
+// gets required air data from server, basing on command line options
 public class AirDataGetter {
     private CommandLine cmd;
     private HttpConnectionController httpConnectionController;
@@ -18,24 +19,25 @@ public class AirDataGetter {
     private URL detailedDataUrl;
     private String apiKey;
 
-    AirDataGetter(String[] args) throws ParseException {
-        cmd = new DefaultParser().parse(new OptionsCreator().getOptions(),args);
+    public AirDataGetter(String[] args,CommandLine cmd){
+        this.cmd = cmd;
         httpConnectionController = new HttpConnectionController();
         if(cmd.hasOption("k")) apiKey=cmd.getOptionValue("k");
-        else apiKey=System.getenv("api-key");
+        else apiKey=System.getenv("API_KEY");
     }
 
-    public HashMap<String,Object> extractAirData() throws IOException, HttpRequestException, MissingOptionException {
+    // returns hashmap with needed data used by AsciiDisplay
+    public HashMap<String,Object> extractAirData() throws IllegalArgumentException,IOException, HttpRequestException, MissingOptionException {
         HashMap<String,Object> data = new HashMap<>();
         setUrls();
         SensorInfo sensorInfo;
 
         if(cmd.hasOption("i")){
-            System.out.println("Szukanie po id...");
-            sensorInfo = (SensorInfo) getDataFromUrl(basicDataUrl, SensorInfo.class);//getSensorsInfo();
+            System.out.println("Getting data for id...");
+            sensorInfo = (SensorInfo) getDataFromUrl(basicDataUrl, SensorInfo.class);
         }
         else{
-            System.out.println("Szukanie po lokalizacji...");
+            System.out.println("Getting data for location...");
             sensorInfo = (SensorInfo) getDataFromUrl(basicDataUrl,NearestSensorInfo.class);
         }
         DetailedMeasurements measurements = (DetailedMeasurements) getDataFromUrl(detailedDataUrl,DetailedMeasurements.class);
@@ -47,14 +49,13 @@ public class AirDataGetter {
         data.put("location",sensorInfo.getLocation());
         data.put("currentMeasurements",measurements.getCurrentMeasurements());
         data.put("history",measurements.getHistory());
-        data.put("hOption",cmd.hasOption("h"));
+        data.put("hOption",cmd.hasOption("H"));
         return data;
     }
 
     private Object getDataFromUrl(URL url,Class<?> objectClass) throws IOException, HttpRequestException {
         httpConnectionController.sendGetRequest(url,apiKey);
         String response = httpConnectionController.getResponse();
-        //System.out.println("Response: "+response);
         Integer responseCode = httpConnectionController.getResponseCode();
         httpConnectionController.disconnect();
         if(!responseCode.equals(200)) handleException(response,responseCode);
@@ -70,7 +71,7 @@ public class AirDataGetter {
         } else if (this.cmd.hasOption("t")){
             detailedDataUrl = new URL("https://airapi.airly.eu/v1/mapPoint/measurements?latitude="+cmd.getOptionValue("t")+"&longitude="+cmd.getOptionValue("g"));
             basicDataUrl = new URL("https://airapi.airly.eu/v1/nearestSensor/measurements?latitude="+cmd.getOptionValue("t")+"&longitude="+cmd.getOptionValue("g")+"&maxDistance=1000");
-        } else throw new MissingOptionException("Missing option latitude");
+        } else throw new MissingOptionException("Missing required option: [-t display data for location; requires usage of longitude option]");
 
     }
 

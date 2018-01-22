@@ -1,16 +1,11 @@
 package agh.cs.project2;
 
+// class for basic information about nearest sensor
 public class NearestSensorInfo extends SensorInfo {
     private Double airQualityIndex;
     private Double pm25;
     private Double pm10;
     private Double distance;
-    //private Integer id;
-    //private String name;
-    //private String vendor;
-    //private Location location;
-    //private Integer pollutionLevel;
-    //private Address address;
     private String measurementTime;
 
     // getters and setters for all attributes

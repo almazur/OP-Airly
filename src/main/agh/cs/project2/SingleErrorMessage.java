@@ -1,5 +1,6 @@
 package agh.cs.project2;
 
+// class for error message returned as single error, not an array (-> Error, ErrorResponse)
 public class SingleErrorMessage {
     private String message;
 

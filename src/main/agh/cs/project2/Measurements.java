@@ -1,5 +1,6 @@
 package agh.cs.project2;
 
+// class for current measurements
 public class Measurements {
     private Double airQualityIndex;
     private Double humidity;

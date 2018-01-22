@@ -7,7 +7,6 @@ public class Address {
     private String country;
 
     // setters and getters for all attributes
-
     public String getStreetNumber() {
         return streetNumber;
     }

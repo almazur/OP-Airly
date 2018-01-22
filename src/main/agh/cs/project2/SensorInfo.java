@@ -1,5 +1,6 @@
 package agh.cs.project2;
 
+// class for basic information about sensor
 public class SensorInfo {
     private Address address;
     private Integer id;

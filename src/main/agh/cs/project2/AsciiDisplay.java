@@ -5,25 +5,25 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 
+// displays measurements and ascii art
 public class AsciiDisplay {
     private HashMap<String,Double> currentMeasurements;
-    //private Measurements measurements;
+    private HashMap<String,String> units;
     private SpecificDateMeasurements[] history;
     private Address address;
     private Integer pollutionLevel;
     private Boolean displayHistory;
-    private Integer id;
     private String currentMeasurementsFrame;
     private String historyMeasurementsFrame;
 
+    // args = hashmap returned by AirDataGetter
     public AsciiDisplay(HashMap<String,Object> args){
         this.displayHistory = (Boolean) args.get("hOption");
-        this.id = (Integer) args.get("id");
-        //this.measurements=(Measurements)args.get("currentMeasurements");
-        this.currentMeasurements = saveSpecificData((Measurements)args.get("currentMeasurements"));
         this.address = (Address) args.get("address");
-        this.pollutionLevel = ((Measurements) args.get("currentMeasurements")).getPollutionLevel();
         this.history = (SpecificDateMeasurements[]) args.get("history");
+        this.pollutionLevel = ((Measurements) args.get("currentMeasurements")).getPollutionLevel();
+        this.currentMeasurements = saveSpecificData((Measurements)args.get("currentMeasurements"));
+        this.units = saveUnits();
         this.currentMeasurementsFrame = DisplayFrame.currentMeasurementsFrame.toString();
         this.historyMeasurementsFrame = DisplayFrame.historyMeasurementsFrame.toString();
     }
@@ -34,13 +34,14 @@ public class AsciiDisplay {
 
     private String getCurrentMeasurements(){
         List<String> asciiArtLines = getAsciiArtLines();
-        //System.out.println(currentMeasurementsFrame);
         String[] frameLines = currentMeasurementsFrame.split(System.getProperty("line.separator"));
+        String addr = address.getRoute() != null ? address.getRoute()+" " : "";
+        String streetNum = address.getStreetNumber() != null ? address.getStreetNumber() : "";
         StringBuilder str = new StringBuilder();
 
         str.append(frameLines[0]).append(System.getProperty("line.separator"))
-                .append(replaceAt(frameLines[1],address.getRoute()+" "+address.getStreetNumber())).append(System.getProperty("line.separator"))
-                .append(replaceAt(frameLines[2],address.getLocality()+" (id: "+id+")")).append(System.getProperty("line.separator"))
+                .append(replaceAt(frameLines[1],addr + streetNum)).append(System.getProperty("line.separator"))
+                .append(replaceAt(frameLines[2],address.getLocality())).append(System.getProperty("line.separator"))
                 .append(frameLines[3]).append(System.getProperty("line.separator"));
 
         int i=4;
@@ -53,24 +54,37 @@ public class AsciiDisplay {
         str.append(frameLines[frameLines.length-1]).append(System.getProperty("line.separator"));
         return str.toString();
     }
-
     private String getHistoryMeasurements(){
+        Boolean emptyHistory = true;
+        for(SpecificDateMeasurements measurement : this.history){
+            if(!isEmptySingleHistoryMeasurement(measurement.getMeasurements())) {
+                emptyHistory = false;
+                break;
+            }
+        }
+        if(emptyHistory) return "No history data";
+
         StringBuilder str = new StringBuilder();
+
         for(SpecificDateMeasurements measurement : this.history){
             str.append(getSingleHistoryMeasurement(measurement.getFromDateTime(),measurement.getTillDateTime(),measurement.getMeasurements()));
         }
         return str.toString();
     }
-
     private String getSingleHistoryMeasurement(String fromDate, String toDate, Measurements measurements){
         String[] frameLines = historyMeasurementsFrame.split(System.getProperty("line.separator"));
         String lineSeparator = System.getProperty("line.separator");
-        return //frameLines[0] + lineSeparator +
-                replaceAt(frameLines[0], "FROM: " + fromDate + "   TO: " + toDate) + lineSeparator +
+
+        return replaceAt(frameLines[0], "FROM: " + formatDate(fromDate)
+                        + "   TO: " + formatDate(toDate)) + lineSeparator +
                 frameLines[1] + lineSeparator +
-                replaceAt(frameLines[2], format(measurements.getPm25())) + lineSeparator +
-                replaceAt(frameLines[3], format(measurements.getPm10())) + lineSeparator +
+                replaceAt(frameLines[2], getMeasurementValue(frameLines[2])) + lineSeparator +
+                replaceAt(frameLines[3], getMeasurementValue(frameLines[3])) + lineSeparator +
                 frameLines[4] + lineSeparator;
+    }
+
+    private Boolean isEmptySingleHistoryMeasurement(Measurements measurements){
+        return measurements.getPm25() == null && measurements.getPm10() == null;
     }
 
     private List<String> getAsciiArtLines(){
@@ -82,23 +96,30 @@ public class AsciiDisplay {
     private String replaceAt(String line,String strReplacement){
         if(!line.contains("@")) return line;
         String[] lines = line.split("@");
-        return lines[0]+ strReplacement + lines[1].substring(strReplacement.length()-1);
+        return lines[0]+ strReplacement + lines[1].substring(strReplacement.length());
     }
 
     private String getMeasurementValue(String line){
         for(String param:this.currentMeasurements.keySet()){
             if(line.matches(".+"+param+".+")) {
-                if(currentMeasurements.get(param)!=null) return format(currentMeasurements.get(param));
+                if(currentMeasurements.get(param)!=null)
+                    return formatDouble(currentMeasurements.get(param))+units.get(param);
                 return "-";
             }
         }
-        return " ";
+        return "-";
     }
 
-    private String format(Double value){
+    private String formatDouble(Double value){
+        if (value == null) return "-";
         DecimalFormat df = new DecimalFormat("#.##");
         df.setRoundingMode(RoundingMode.CEILING);
         return df.format(value);
+    }
+    private String formatDate(String date){
+        if(!date.matches(".+T.+Z")) return date;
+        String[] parts = date.split("T");
+        return parts[0]+" "+parts[1].substring(0,parts[1].length()-1);
     }
 
     private HashMap<String,Double> saveSpecificData(Measurements measurements){
@@ -110,6 +131,16 @@ public class AsciiDisplay {
         data.put("press",measurements.getPressure());
         data.put("hum",measurements.getHumidity());
         return data;
+    }
+    private HashMap<String,String> saveUnits(){
+        HashMap<String,String> units = new HashMap<>();
+        units.put("CAQI","");
+        units.put("pm2.5"," ug/m3");
+        units.put("pm10"," ug/m3");
+        units.put("temp","'C");
+        units.put("press"," hPa");
+        units.put("hum","%");
+        return units;
     }
 
     private Color pollutionLevelToColor(Integer pollutionLevel){

@@ -1,8 +1,9 @@
 package agh.cs.project2;
 
+// ascii Lung
 public class Lung extends Ascii{
 
-    Lung(Color color){
+    public Lung(Color color){
         super(color);
         String lineSeparator = System.getProperty("line.separator");
         this.asciiArt = "           ||           " + lineSeparator +

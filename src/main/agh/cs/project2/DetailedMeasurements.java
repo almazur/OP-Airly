@@ -1,5 +1,6 @@
 package agh.cs.project2;
 
+// class for current measurements, history and forecast
 public class DetailedMeasurements extends Measurements {
     private Measurements currentMeasurements;
     private SpecificDateMeasurements[] forecast;

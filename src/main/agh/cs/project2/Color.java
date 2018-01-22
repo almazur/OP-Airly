@@ -1,7 +1,7 @@
 package agh.cs.project2;
 
+// enum class with ansi escape codes for colors
 public enum Color {
-    //32 -> 92 -> 93 -> 33 -> 91 -> 31
     DARKGREEN("\u001B[32m"),
     GREEN("\u001B[92m"),
     YELLOW("\u001B[93m"),
@@ -10,7 +10,6 @@ public enum Color {
     DARKRED("\u001B[31m"),
     BLACK("\u001B[30m"),
     RESET("\u001B[0m");
-    //WHITE ("\u001B[37m");
 
     private String colorCode;
     Color(String colorCode){

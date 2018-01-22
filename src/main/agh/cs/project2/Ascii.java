@@ -5,9 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// common class for all ascii arts
 public abstract class Ascii {
     protected String asciiArt;
-    protected Color color;
+    private Color color;
 
     public Ascii(Color color){
         this.color=color;
